@@ -138,7 +138,11 @@ jobs:
           release_url="$(jq -er '.html_url' "$release_json")"
           published_at="$(jq -er '.published_at' "$release_json")"
           source_date_epoch="$(date --date="$published_at" +%s)"
-          prerelease="$(jq -er '.prerelease' "$release_json")"
+          prerelease="$(jq -r '.prerelease' "$release_json")"
+          if [[ "$prerelease" != true && "$prerelease" != false ]]; then
+            echo "::error::GitHub returned an invalid prerelease value: $prerelease"
+            exit 1
+          fi
 
           latest_json="${RUNNER_TEMP}/snu1-latest-release.json"
           curl --fail-with-body --silent --show-error --location --retry 3 \
